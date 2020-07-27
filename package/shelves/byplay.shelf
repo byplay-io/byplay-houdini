@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <toolshelf name="byplay_shelf" label="Byplay">
+    <memberTool name="byplay_loader_tool"/>
+  </toolshelf>
+
+  <tool name="byplay_loader_tool" label="Byplay loader" icon="PLASMA_App">
+    <helpText><![CDATA[Byplay scene loader]]></helpText>
+    <helpURL>https://byplay.io/help/houdini</helpURL>
+    <toolMenuContext name="viewer">
+      <contextNetType>OBJ</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextNetType>OBJ</contextNetType>
+    </toolMenuContext>
+    <script scriptType="python"><![CDATA[
+import byplay
+byplay.scene.setup_byplay_helper_nodes()
+    ]]></script>
+  </tool>
+</shelfDocument>
