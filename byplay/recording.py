@@ -19,7 +19,7 @@ class Recording:
         self.camera_frames_path_ffmpeg = self.camera_frames_path.replace("$F5", "%05d")
 
         self.assets_dir = join(self.base_path, "assets")
-        self.point_cloud_path = join(self.base_path, "pointcloud.obj")
+        self.point_cloud_path = join(self.base_path, "houdini_pointcloud.obj")
         self.camera_fbx_path = join(self.base_path, "houdini_camera.fbx")
 
         self.environment_exr_names = self.find_environment_exr_names()
@@ -37,5 +37,5 @@ class Recording:
         return [path for path in os.listdir(self.assets_dir) if path.endswith(".exr")]
 
     def read_manifest(self):
-        with open(self.manifest_path) as f:
+        with open(self.manifest_path, encoding="utf-8") as f:
             return json.load(f)
