@@ -1,0 +1,31 @@
+  {
+    "recommends": "houdini_version >= '17.5.321'",
+    "env": [
+        {
+            // You only need to change this one
+            "BYPLAY_PATH": "C:\\Users\\byplay\\package"
+        },
+        {
+            "FFMPEG_PATH": "$BYPLAY_PATH\\ffmpeg.exe"
+        },
+        {
+            "BYPLAY_SYSTEM_DATA_PATH": "$BYPLAY_PATH\\data"
+        },
+        {
+            "HOUDINI_PATH": {
+                "value": "$BYPLAY_PATH", "method": "append"
+            }
+        },
+        {
+            "PYTHONPATH":
+            {
+                "value": "$BYPLAY_PATH/python2.7libs",
+                "method": "append"
+            }
+        },
+        {
+            "HOUDINI_TOOLBAR_PATH": "$BYPLAY_PATH\\shelves;$HOUDINI_TOOLBAR_PATH"
+        }
+    ],
+    "path": "$BYPLAY_PATH"
+}
