@@ -7,6 +7,7 @@ import byplay.wrappers.byplay_settings_container as byplay_settings_container
 from byplay.recording import Recording
 from byplay.wrappers.houdini_envlight import HoudiniEnvlight
 from byplay.wrappers.houdini_fbx_camera import HoudiniFBXCamera
+from byplay.wrappers.houdini_fbx_nulls import HoudiniFBXNulls
 from byplay.wrappers.houdini_point_cloud import HoudiniPointCloud
 
 
@@ -14,6 +15,7 @@ class HoudiniScene(object):
     def __init__(self, recording):
         self.recording = recording
         self.camera = None
+        self.nulls = []
         self.point_cloud = None
         self.envlight = None
 
@@ -22,6 +24,7 @@ class HoudiniScene(object):
         self.apply_animation_settings()
 
         self.camera = self.load_camera()
+        self.nulls = self.load_nulls()
         self.point_cloud = self.load_point_cloud()
         self.envlight = self.load_envlight()
 
@@ -30,6 +33,11 @@ class HoudiniScene(object):
     def load_camera(self):
         fbxc = HoudiniFBXCamera(self.recording)
         fbxc.create_camera()
+        return fbxc
+
+    def load_nulls(self):
+        fbxc = HoudiniFBXNulls(self.recording)
+        fbxc.create_nulls()
         return fbxc
 
     def load_point_cloud(self):

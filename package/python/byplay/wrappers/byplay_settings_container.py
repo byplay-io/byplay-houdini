@@ -1,6 +1,6 @@
 from __future__ import absolute_import
+from byplay.backend.amplitude_logger import log_amplitude
 from byplay.config import Config
-from byplay.helpers.recording_downloader import RecordingDownloader
 from byplay.recording import Recording
 from byplay.wrappers.houdini_object import HoudiniObject
 from byplay.wrappers.houdini_params_builder import HoudiniParamsBuilder
@@ -16,9 +16,12 @@ class ByplaySettingsContainer(HoudiniObject):
         super(ByplaySettingsContainer, self).__init__(self.PATH, template_name=template_name)
 
     def setup(self):
-        HoudiniParamsBuilder.add_byplay_settings_tab(self.node)
-        HoudiniParamsBuilder.add_byplay_recordings_tab(self.node)
-        HoudiniParamsBuilder.set_stored_values(self.node)
+        log_amplitude(u"Byplay loader node created")
+        HoudiniParamsBuilder.add_byplay_tab(self.node)
+        self.apply_config()
+
+    def apply_config(self):
+        self.node.setParms({u"byplay_recordings_dir": Config.recordings_dir()})
 
     def apply_recording(self, recording):
         path_params = {
