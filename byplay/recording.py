@@ -7,7 +7,8 @@ from byplay.helpers.util import join
 
 
 class Recording:
-    def __init__(self, base_path):
+    def __init__(self, base_path: str, id: str):
+        self.id = id
         self.base_path = base_path
         self.video_path = join(self.base_path, "src_video.mp4")
         self.manifest_path = join(self.base_path, "recording_manifest.json")
@@ -21,6 +22,7 @@ class Recording:
         self.assets_dir = join(self.base_path, "assets")
         self.point_cloud_path = join(self.base_path, "houdini_pointcloud.obj")
         self.camera_fbx_path = join(self.base_path, "houdini_camera.fbx")
+        self.nulls_fbx_path = join(self.base_path, "houdini_nulls.fbx")
 
         self.environment_exr_names = self.find_environment_exr_names()
 
