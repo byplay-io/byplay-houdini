@@ -2,27 +2,25 @@ import json
 import os
 import logging
 from distutils.dir_util import mkpath
+
 from byplay.helpers.util import join
 import sys
 
 
 class Config:
-    _access_token = None
     _recordings_dir = None
 
     @staticmethod
     def is_dev() -> bool:
-        return False
+        return True
 
     @staticmethod
-    def api_base() -> str:
-        if Config.is_dev():
-            return "http://localhost:8080/api/v1"
-        return "https://client-recordings-registry-v6o4nieboq-ez.a.run.app/api/v1"
+    def build() -> str:
+        return 1002
 
     @staticmethod
-    def api_access_token() -> str:
-        return Config._access_token
+    def user_id() -> str:
+        return Config._user_id
 
     @staticmethod
     def recordings_dir() -> str:
@@ -30,7 +28,7 @@ class Config:
 
     @staticmethod
     def ffmpeg_path() -> str:
-        return os.environ.get("FFMPEG_PATH") or "ffmpeg"
+        return os.environ.get("BYPLAY_FFMPEG_PATH") or "ffmpeg"
 
     @staticmethod
     def utility_geo_path() -> str:
@@ -45,27 +43,12 @@ class Config:
         return "png"
 
     @staticmethod
-    def store_access_token(access_token: str):
-        Config.store_value('access_token', access_token)
-        Config._access_token = access_token
-
-    @staticmethod
-    def store_byplay_recordings_dir(recordings_dir: str):
-        Config.store_value('recordings_dir', recordings_dir)
-        Config._recordings_dir = recordings_dir
-        pass
-
-    @staticmethod
-    def system_data_path():
+    def user_config_path():
         return os.environ["BYPLAY_SYSTEM_DATA_PATH"]
 
     @staticmethod
-    def user_config_path():
-        return join(Config.system_data_path(), "user_config.json")
-
-    @staticmethod
     def log_file_path():
-        return join(Config.system_data_path(), "byplay.log")
+        return os.environ["BYPLAY_PLUGIN_LOG_PATH"]
 
     @staticmethod
     def _read_config_file():
@@ -84,19 +67,9 @@ class Config:
     @staticmethod
     def read():
         data = Config._read_config_file()
-        logging.debug("Successfully read config file")
-        Config._access_token = data.get("access_token")
-        Config._recordings_dir = data.get("recordings_dir")
-
-    @staticmethod
-    def store_value(key, value):
-        data = Config._read_config_file()
-        data[key] = value
-        config_path = Config.user_config_path()
-        mkpath(os.path.dirname(config_path))
-        with open(config_path, "wb") as f:
-            json.dump(data, f)
-        logging.debug("Stored new value for '{}' in config".format(key))
+        logging.debug("Successfully read config file, {}".format(data))
+        Config._user_id = data.get("userId")
+        Config._recordings_dir = data.get("recordingsDir")
 
     @staticmethod
     def setup_logger():
