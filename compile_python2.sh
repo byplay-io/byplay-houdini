@@ -1,9 +1,10 @@
 #!/bin/bash
 
-rm -rf package/python2.7libs/
-mkdir -p package/python2.7libs/
-cp -r byplay package/python2.7libs/byplay/
-find package/python2.7libs/byplay -name '__pycache__'  -exec rm -rf {} \;
-3to2 --no-diffs -w -n package/python2.7libs/byplay
+dir_name="package/python"
+rm -rf $dir_name/
+mkdir -p $dir_name/
+cp -r byplay $dir_name/byplay/
+find $dir_name/byplay -name '__pycache__'  -exec rm -rf {} \;
+3to2 --no-diffs -w -n $dir_name/byplay
 
-find ./package/python2.7libs/byplay -type f -exec sed -i '' 's#from typing .*##' {} \;
+find ./$dir_name/byplay -type f -exec sed -i '' 's#from typing .*##' {} \;
