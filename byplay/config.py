@@ -3,8 +3,6 @@ import os
 import logging
 from distutils.dir_util import mkpath
 
-from byplay.backend.sentry import capture_exception
-from byplay.helpers.util import join
 import sys
 
 
@@ -66,16 +64,14 @@ class Config:
         return {}
 
     @staticmethod
-    def read() -> bool:
-        try:
-            data = Config._read_config_file()
-            logging.debug("Successfully read config file, {}".format(data))
-            Config._user_id = data.get("userId")
-            Config._recordings_dir = data.get("recordingsDir")
-            return Config._recordings_dir is not None
-        except Exception as e:
-            capture_exception(e)
-            return False
+    def read():
+        data = Config._read_config_file()
+        logging.debug("Successfully read config file, {}".format(data))
+        Config._user_id = data.get("userId")
+        Config._recordings_dir = data.get("recordingsDir")
+        if Config._recordings_dir is None:
+            raise ValueError("Recordings dir is empty in config {}".format(data))
+
 
     @staticmethod
     def setup_logger():

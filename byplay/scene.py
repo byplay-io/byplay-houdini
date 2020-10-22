@@ -13,18 +13,28 @@ from byplay.wrappers.houdini_scene import HoudiniScene
 def setup_byplay_helper_nodes():
     try:
         Config.setup_logger()
-        if not Config.read():
-            hou = get_hou()
-            hou.ui.displayMessage(
-                "Could not read config file. Please open Byplay Desktop and set it up",
-                severity=hou.severityType.Error
-            )
-            return
+    except Exception as e:
+        capture_exception()
+        raise e
+
+    try:
+        Config.read()
+    except Exception as e:
+        capture_exception()
+        hou = get_hou()
+        hou.ui.displayMessage(
+            "Could not read config file. Please open Byplay Desktop and set it up",
+            severity=hou.severityType.Error
+        )
+        raise e
+
+    try:
         logging.info("Creating byplay loader node")
         byplay_settings_container.ByplaySettingsContainer().setup()
     except Exception as e:
         capture_exception()
         raise e
+
 
 def load_recording(recording_id: str) -> Recording:
     logging.info("loading {}".format(recording_id))

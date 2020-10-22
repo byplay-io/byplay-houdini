@@ -6,7 +6,7 @@ from byplay import get_hou
 
 
 def sys_info():
-    sysname, nodename, release, version, machine = platform.uname()
+    sysname, nodename, release, version, machine, _processor = platform.uname()
 
     hou_platform = "unk"
     hou_version = "unk"
