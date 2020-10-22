@@ -13,7 +13,13 @@ from byplay.wrappers.houdini_scene import HoudiniScene
 def setup_byplay_helper_nodes():
     try:
         Config.setup_logger()
-        Config.read()
+        if not Config.read():
+            hou = get_hou()
+            hou.ui.displayMessage(
+                "Could not read config file. Please open Byplay Desktop and set it up",
+                severity=hou.severityType.Error
+            )
+            return
         logging.info("Creating byplay loader node")
         byplay_settings_container.ByplaySettingsContainer().setup()
     except Exception as e:

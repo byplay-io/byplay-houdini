@@ -1,12 +1,12 @@
 import logging
-import os
+import platform
 
 from byplay.config import Config
 from byplay import get_hou
 
 
 def sys_info():
-    sysname, nodename, release, version, machine = os.uname()
+    sysname, nodename, release, version, machine = platform.uname()
 
     hou_platform = "unk"
     hou_version = "unk"
