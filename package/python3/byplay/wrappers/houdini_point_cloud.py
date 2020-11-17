@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import logging
 import os
 
@@ -11,19 +10,19 @@ class HoudiniPointCloud(HoudiniObject):
             HoudiniPointCloud,
             self
         ).__init__(
-            u"/obj/AR_point_cloud",
+            "/obj/AR_point_cloud",
             recording,
-            template_name=u"geo"
+            template_name="geo"
         )
 
     def create_point_cloud(self):
         path = self.recording.point_cloud_path
         if not os.path.exists(path):
-            logging.info(u"Point cloud not found")
+            logging.info("Point cloud not found")
             return None
-        file = self.node.createNode(u"file")
+        file = self.node.createNode("file")
         file.setParms({
-            u'file': self.recording.make_path_relative(path)
+            'file': self.recording.make_path_relative(path)
         })
 
         return file

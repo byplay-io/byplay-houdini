@@ -14,6 +14,7 @@
       <contextNetType>OBJ</contextNetType>
     </toolMenuContext>
     <script scriptType="python"><![CDATA[
+import byplay_preloader
 import byplay
 byplay.scene.setup_byplay_helper_nodes()
     ]]></script>

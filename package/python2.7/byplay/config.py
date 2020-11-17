@@ -5,7 +5,6 @@ import os
 import logging
 from distutils.dir_util import mkpath
 
-from byplay.helpers.util import join
 import sys
 from io import open
 
@@ -58,7 +57,7 @@ class Config(object):
         try:
            config_path = Config.user_config_path()
            if os.path.exists(config_path):
-               with open(config_path) as f:
+               with open(config_path, encoding=u"utf-8") as f:
                    logging.debug(u"Successfully read config file")
                    return json.loads(f.read())
         except Exception, e:
@@ -73,6 +72,9 @@ class Config(object):
         logging.debug(u"Successfully read config file, {}".format(data))
         Config._user_id = data.get(u"userId")
         Config._recordings_dir = data.get(u"recordingsDir")
+        if Config._recordings_dir is None:
+            raise ValueError(u"Recordings dir is empty in config {}".format(data))
+
 
     @staticmethod
     def setup_logger():
