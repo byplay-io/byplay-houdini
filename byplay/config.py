@@ -54,7 +54,7 @@ class Config:
         try:
            config_path = Config.user_config_path()
            if os.path.exists(config_path):
-               with open(config_path) as f:
+               with open(config_path, encoding="utf-8") as f:
                    logging.debug("Successfully read config file")
                    return json.loads(f.read())
         except Exception as e:

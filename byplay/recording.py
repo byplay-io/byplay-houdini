@@ -36,6 +36,8 @@ class Recording:
         return "<Recording at {}>".format(self.base_path)
 
     def find_environment_exr_names(self):
+        if not os.path.exists(self.assets_dir):
+            return []
         return [path for path in os.listdir(self.assets_dir) if path.endswith(".exr")]
 
     def read_manifest(self):
