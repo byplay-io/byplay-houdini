@@ -10,7 +10,7 @@ class HoudiniPointCloud(HoudiniObject):
             HoudiniPointCloud,
             self
         ).__init__(
-            "/obj/AR_point_cloud",
+            "AR_point_cloud",
             recording,
             template_name="geo"
         )

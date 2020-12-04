@@ -48,7 +48,20 @@ class HoudiniParamsBuilder:
                 script_callback_language=hou.scriptLanguage.Python,
                 conditionals={hou.parmCondType.DisableWhen: '{ byplay_recording_id == "[click refresh]" }'}
             ),
-            hou.SeparatorParmTemplate("byplay_separator"),
+
+        ]
+
+    @staticmethod
+    def byplay_recording_container_parm_templates(node):
+        hou = get_hou()
+        return [
+            hou.StringParmTemplate(
+                "byplay_can_edit_paths",
+                "Byplay can edit paths",
+                1,
+                default_value="",
+                is_hidden=True
+            ),
             hou.StringParmTemplate(
                 "recording_path",
                 "Recording path",
@@ -65,12 +78,38 @@ class HoudiniParamsBuilder:
                 "exr_name",
                 "Environment .exr",
                 menu_items=['-'],
-                conditionals={hou.parmCondType.DisableWhen: '{ byplay_loaded_recording_id == "" }'}
+            ),
+            hou.IntParmTemplate(
+                "byplay_start_frame",
+                "Start at frame",
+                1,
+                default_value=(1,)
+            ),
+            hou.StringParmTemplate(
+                "byplay_recording_session_id",
+                "Byplay recording session id",
+                1,
+                default_value=("unk",),
+                # is_hidden=True
+            ),
+            hou.FloatParmTemplate(
+                "byplay_applied_postprocessing_y_offset",
+                "Postprocessing y offset",
+                1,
+                default_value=(0,),
+                # is_hidden=True
+            ),
+            hou.FloatParmTemplate(
+                "byplay_target_postprocessing_y_offset",
+                "Target y offset",
+                1,
+                default_value=(0,),
+                # is_hidden=True
             ),
         ]
 
     @staticmethod
-    def add_byplay_tab(node):
+    def add_byplay_tab_to_loader(node):
         hou = get_hou()
         parm_group = node.parmTemplateGroup()
 
@@ -88,6 +127,19 @@ class HoudiniParamsBuilder:
                     script_callback_language=hou.scriptLanguage.Python
                 )
             )
+
+        parm_group.append(parm_folder)
+        node.setParmTemplateGroup(parm_group)
+
+    @staticmethod
+    def add_byplay_tab_to_recording_container(node):
+        hou = get_hou()
+        parm_group = node.parmTemplateGroup()
+
+        parm_folder = hou.FolderParmTemplate("byplay_settings", "Byplay")
+
+        for tpl in HoudiniParamsBuilder.byplay_recording_container_parm_templates(node):
+            parm_folder.addParmTemplate(tpl)
 
         parm_group.append(parm_folder)
         node.setParmTemplateGroup(parm_group)

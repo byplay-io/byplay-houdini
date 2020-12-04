@@ -3,24 +3,29 @@ from typing import Dict
 
 from byplay.helpers.util import identity, expand_vector_props
 from byplay.houdini_interface import get_hou
+from byplay.recording import Recording
 
 
 class HoudiniObject:
-    def __init__(self, hou_scene_path, recording=None, template_name: str = None):
-        self.hou_scene_path = hou_scene_path
+    recording: Recording
+
+    def __init__(self, node_name, recording=None, parent_path=None, template_name: str = None):
+        self.recording = recording
+        self.parent_node = self._get_parent_node(parent_path)
+        self.node_name = node_name
         if template_name is None:
-            self.node = get_hou().node(hou_scene_path)
+            self.node = self.parent_node.node(node_name)
         else:
             self.node = self.recreate_node(template_name)
-        self.recording = recording
+
+    def node_path(self):
+        return "/".join([self.parent_node.path(), self.node_name])
 
     def recreate_node(self, template_name):
-        hou = get_hou()
-        if hou.node(self.hou_scene_path) is not None:
-            hou.node(self.hou_scene_path).destroy()
+        if self.parent_node.node(self.node_name) is not None:
+            self.parent_node.node(self.node_name).destroy()
 
-        parent_path, name = self.split_path_to_parent()
-        node = hou.node(parent_path).createNode(template_name, name)
+        node = self.parent_node.createNode(template_name, self.node_name)
         return node
 
     def split_path_to_parent(self):
@@ -73,3 +78,18 @@ class HoudiniObject:
             if at_frame is not None:
                 kf.setFrame(at_frame)
             parm.setKeyframe(kf)
+
+    def _get_parent_node(self, parent_path):
+        hou = get_hou()
+        if parent_path is not None:
+            return hou.node(parent_path)
+
+        root = hou.node("/obj")
+        if self.recording is None:
+            return root
+        parent_name = "Byplay_{}".format(self.recording.id)
+        parent = root.node(parent_name)
+        if parent is None:
+            raise ValueError("Could not find parent node {}".format(parent_name))
+        return parent
+

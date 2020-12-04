@@ -7,12 +7,12 @@ class HoudiniEnvlight(HoudiniObject):
             HoudiniEnvlight,
             self
         ).__init__(
-            "/obj/AR_envlight",
+            "AR_envlight",
             recording,
             template_name="envlight"
         )
 
     def create_envlight(self):
         self.set_params({
-            "env_map": '`strcat(strcat(chs("/obj/byplayloader/recording_path"), "/assets/"), chs("/obj/byplayloader/exr_name"))`'
+            "env_map": '`strcat(strcat(chs("../recording_path"), "/assets/"), chs("../exr_name"))`'
         })

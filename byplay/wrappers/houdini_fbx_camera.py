@@ -9,17 +9,61 @@ class HoudiniFBXCamera(HoudiniObject):
             HoudiniFBXCamera,
             self
         ).__init__(
-            "/obj/AR_camera",
-            recording
+            node_name="AR_camera",
+            recording=recording
         )
 
     def _apply_camera_view(self):
         self.set_params({
-            "vm_background": '`chs("/obj/byplayloader/video_frames_path")`',
+            "vm_background": '`chs("{}/video_frames_path")`'.format(self.parent_node.path()),
         })
 
     def create_camera(self):
         self.node, = FBXUnpack(
             self.recording.camera_fbx_path
-        ).unpack({'Camera': 'AR_Camera'})
+        ).unpack({'Camera': self.node_name}, self.parent_node, only_in_map=True)
         self._apply_camera_view()
+        self._create_chopnet()
+
+    def _create_chopnet(self):
+        if self.parent_node.node("motionfx") is not None:
+            self.parent_node.node("motionfx").destroy()
+        chopnet = self.node.findOrCreateMotionEffectsNetwork()
+
+        transform = self.node.parmTuple("t")
+        channel = transform.createClip(
+            chopnet,
+            self.node_name,
+            create_new=False,
+            apply_immediately=True,
+            current_value_only=False,
+            create_locked=False,
+            set_value_to_default=False
+        )
+
+        rotation = self.node.parmTuple("r")
+        rotation.appendClip(
+            channel,
+            apply_immediately=True,
+            current_value_only=False,
+            create_locked=False,
+            set_value_to_default=False
+        )
+
+        focal = self.node.parm("focal")
+        focal.appendClip(
+            channel,
+            apply_immediately=True,
+            current_value_only=False,
+            create_locked=False,
+            set_value_to_default=False
+        )
+
+        channel.setExportFlag(False)
+
+        shift = chopnet.createNode("shift")
+        shift.setInput(0, channel)
+        shift.setExportFlag(True)
+        shift.parm("start").setExpression('ch("../../byplay_start_frame")-1')
+        shift.parm("units").set(0)
+        chopnet.layoutChildren()
