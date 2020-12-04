@@ -7,8 +7,6 @@ from byplay.recording import Recording
 
 
 class HoudiniObject:
-    recording: Recording
-
     def __init__(self, node_name, recording=None, parent_path=None, template_name: str = None):
         self.recording = recording
         self.parent_node = self._get_parent_node(parent_path)
