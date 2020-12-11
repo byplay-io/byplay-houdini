@@ -9,6 +9,7 @@ from byplay.wrappers.houdini_envlight import HoudiniEnvlight
 from byplay.wrappers.houdini_fbx_camera import HoudiniFBXCamera
 from byplay.wrappers.houdini_fbx_nulls import HoudiniFBXNulls
 from byplay.wrappers.houdini_point_cloud import HoudiniPointCloud
+from byplay.wrappers.houdini_recording_container import HoudiniRecordingContainer
 
 
 class HoudiniScene(object):
@@ -18,26 +19,36 @@ class HoudiniScene(object):
         self.nulls = []
         self.point_cloud = None
         self.envlight = None
+        self.container = None
+        self.target_fps = 30
 
-    def apply(self):
-        byplay_settings_container.ByplaySettingsContainer(recreate=False).apply_recording(self.recording)
-        self.apply_animation_settings()
+    def apply(self, set_30fps=True, add_chopnet=True):
+        self.target_fps = get_hou().hscriptExpression(u"$FPS")
+        if set_30fps:
+            self.target_fps = 30
+        self.apply_animation_settings(set_30fps)
 
-        self.camera = self.load_camera()
+        self.container = HoudiniRecordingContainer(recording=self.recording)
+        self.container.apply_recording()
+
+        self.camera = self.load_camera(add_chopnet=add_chopnet)
+        parent_subnet = self.container.node
+        # byplay_settings_container.ByplaySettingsContainer(recreate=False).apply_recording(self.recording)
+
         self.nulls = self.load_nulls()
         self.point_cloud = self.load_point_cloud()
         self.envlight = self.load_envlight()
 
-        get_hou().node(u"/obj").layoutChildren()
+        parent_subnet.layoutChildren()
 
-    def load_camera(self):
+    def load_camera(self, add_chopnet):
         fbxc = HoudiniFBXCamera(self.recording)
-        fbxc.create_camera()
+        fbxc.create_camera(fps=self.target_fps, add_chopnet=add_chopnet)
         return fbxc
 
     def load_nulls(self):
         fbxc = HoudiniFBXNulls(self.recording)
-        fbxc.create_nulls()
+        fbxc.create_nulls(fps=self.target_fps)
         return fbxc
 
     def load_point_cloud(self):
@@ -45,11 +56,12 @@ class HoudiniScene(object):
         hpc.create_point_cloud()
         return hpc
 
-    def apply_animation_settings(self):
-        end_frame = self.recording.frame_count()
-        start_frame = 1
-        set_global_frange_expr = u"tset `({}-1)/$FPS` `{}/$FPS`".format(start_frame, end_frame)
+    def apply_animation_settings(self, set_30fps):
+        frame_count = self.recording.frame_count()
         hou = get_hou()
+        start_frame = hou.hscriptExpression(u"$FSTART")
+        end_frame = max(hou.hscriptExpression(u"$FEND"), start_frame + frame_count)
+        set_global_frange_expr = u"tset `({}-1)/$FPS` `{}/$FPS`".format(start_frame, end_frame)
         hou.hscript(set_global_frange_expr)
         hou.playbar.setPlaybackRange(start_frame, end_frame)
 

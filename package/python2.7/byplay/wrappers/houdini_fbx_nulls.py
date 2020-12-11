@@ -12,12 +12,18 @@ class HoudiniFBXNulls(HoudiniObject):
             HoudiniFBXNulls,
             self
         ).__init__(
-            u"/obj/nulls",
+            u"nulls",
             recording
         )
 
-    def create_nulls(self):
+    def create_nulls(self, fps):
         if not os.path.exists(self.recording.nulls_fbx_path):
             return
 
-        FBXUnpack(self.recording.nulls_fbx_path).unpack()
+        FBXUnpack(self.recording.nulls_fbx_path, fps=fps).unpack(
+            parent_node=self.parent_node
+        )
+        planes = self.parent_node.node(u"Planes")
+        if planes is not None:
+            planes_subn = self.parent_node.collapseIntoSubnet((planes,) + planes.outputs())
+            planes_subn.setName(u"Planes")

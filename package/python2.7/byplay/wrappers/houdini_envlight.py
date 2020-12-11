@@ -8,12 +8,15 @@ class HoudiniEnvlight(HoudiniObject):
             HoudiniEnvlight,
             self
         ).__init__(
-            u"/obj/AR_envlight",
+            u"AR_envlight",
             recording,
             template_name=u"envlight"
         )
 
     def create_envlight(self):
+        self.node.parm(u"light_enable").setExpression(
+            u"strcmp(chs('/obj/byplayloader/byplay_use_exr_from'), chs('../byplay_recording_id')) == 0"
+        )
         self.set_params({
-            u"env_map": u'`strcat(strcat(chs("/obj/byplayloader/recording_path"), "/assets/"), chs("/obj/byplayloader/exr_name"))`'
+            u"env_map": u'`strcat(strcat(chs("../recording_path"), "/assets/"), chs("../exr_name"))`'
         })

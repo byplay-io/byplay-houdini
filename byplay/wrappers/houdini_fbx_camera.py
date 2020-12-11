@@ -18,12 +18,14 @@ class HoudiniFBXCamera(HoudiniObject):
             "vm_background": '`chs("{}/video_frames_path")`'.format(self.parent_node.path()),
         })
 
-    def create_camera(self):
+    def create_camera(self, fps, add_chopnet):
         self.node, = FBXUnpack(
-            self.recording.camera_fbx_path
+            self.recording.camera_fbx_path,
+            fps=fps
         ).unpack({'Camera': self.node_name}, self.parent_node, only_in_map=True)
         self._apply_camera_view()
-        self._create_chopnet()
+        if add_chopnet:
+            self._create_chopnet()
 
     def _create_chopnet(self):
         if self.parent_node.node("motionfx") is not None:
@@ -34,30 +36,17 @@ class HoudiniFBXCamera(HoudiniObject):
         channel = transform.createClip(
             chopnet,
             self.node_name,
-            create_new=False,
-            apply_immediately=True,
-            current_value_only=False,
-            create_locked=False,
-            set_value_to_default=False
+            False,
+            True,
+            False,
+            False,
+            False
         )
 
         rotation = self.node.parmTuple("r")
-        rotation.appendClip(
-            channel,
-            apply_immediately=True,
-            current_value_only=False,
-            create_locked=False,
-            set_value_to_default=False
-        )
-
+        rotation.appendClip(channel, True, False, False, False)
         focal = self.node.parm("focal")
-        focal.appendClip(
-            channel,
-            apply_immediately=True,
-            current_value_only=False,
-            create_locked=False,
-            set_value_to_default=False
-        )
+        focal.appendClip(channel, True, False, False, False)
 
         channel.setExportFlag(False)
 

@@ -19,6 +19,8 @@ class HoudiniRecordingContainer(HoudiniObject):
         )
 
     def apply_recording(self):
+        self.connect_to_loader()
+
         HoudiniParamsBuilder.add_byplay_tab_to_recording_container(self.node)
         path_params = {
             "video_frames_path": '`chs("recording_path")`/frames/`padzero(5, $F-ch("byplay_start_frame")+1)`.png',
@@ -35,6 +37,7 @@ class HoudiniRecordingContainer(HoudiniObject):
         self.node.setParms(path_params)
 
         self.node.setParms({
+            'byplay_recording_id': self.recording.id,
             'byplay_applied_postprocessing_y_offset': self.recording.postprocessing_y_offset,
             'byplay_target_postprocessing_y_offset': self.target_y_offset(),
             'byplay_recording_session_id': self.recording.recording_session_id,
@@ -56,4 +59,12 @@ class HoudiniRecordingContainer(HoudiniObject):
             if session_parm is not None and session_parm.eval() == self.recording.recording_session_id:
                 return n
         return None
+
+    def connect_to_loader(self):
+        loader = get_hou().node("/obj/byplayloader")
+        if loader is None:
+            return
+        self.node.setInput(0, loader)
+        self.node.moveToGoodPosition()
+
 

@@ -1,4 +1,5 @@
 from byplay.config import Config
+from byplay.helpers.recording_local_storage import RecordingLocalStorage
 from byplay.houdini_interface import get_hou
 
 
@@ -41,6 +42,19 @@ class HoudiniParamsBuilder:
                 script_callback="__import__('byplay').ui_callbacks.reload_recordings_list('{}')".format(node.path()),
                 script_callback_language=hou.scriptLanguage.Python
             ),
+            hou.ToggleParmTemplate(
+                "byplay_set_30fps",
+                "Set scene FPS to 30",
+                is_hidden=True,
+                default_value=True,
+                join_with_next=True
+            ),
+            hou.ToggleParmTemplate(
+                "byplay_add_chopnet",
+                "Add CHOP to change timings",
+                is_hidden=True,
+                default_value=True,
+            ),
             hou.ButtonParmTemplate(
                 "byplay_load_recording",
                 "Load",
@@ -48,6 +62,15 @@ class HoudiniParamsBuilder:
                 script_callback_language=hou.scriptLanguage.Python,
                 conditionals={hou.parmCondType.DisableWhen: '{ byplay_recording_id == "[click refresh]" }'}
             ),
+            hou.MenuParmTemplate(
+                "byplay_use_exr_from",
+                "Use EXR env from",
+                [],
+                item_generator_script="""
+                els = [n.name()[len("Byplay_"):] for n in hou.node("/obj/byplayloader").outputs()]
+                return [item for item in els for i in range(2)]
+                """
+            )
 
         ]
 
@@ -86,11 +109,18 @@ class HoudiniParamsBuilder:
                 default_value=(1,)
             ),
             hou.StringParmTemplate(
+                "byplay_recording_id",
+                "Byplay recording id",
+                1,
+                default_value=("",),
+                is_hidden=True
+            ),
+            hou.StringParmTemplate(
                 "byplay_recording_session_id",
                 "Byplay recording session id",
                 1,
                 default_value=("unk",),
-                # is_hidden=True
+                is_hidden=True
             ),
             hou.FloatParmTemplate(
                 "byplay_applied_postprocessing_y_offset",
@@ -145,7 +175,10 @@ class HoudiniParamsBuilder:
         node.setParmTemplateGroup(parm_group)
 
     @staticmethod
-    def set_byplay_recording_ids(node, ids):
+    def set_byplay_recording_ids(node):
+        ids = RecordingLocalStorage().list_recording_ids()
+        ids = list(reversed(ids))
+
         if len(ids) == 0:
             get_hou().ui.displayMessage(
                 "There are no recordings. Did you try the app and downloaded something in Byplay Desktop?"

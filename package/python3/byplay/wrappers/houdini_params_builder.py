@@ -1,4 +1,5 @@
 from byplay.config import Config
+from byplay.helpers.recording_local_storage import RecordingLocalStorage
 from byplay.houdini_interface import get_hou
 
 
@@ -41,6 +42,19 @@ class HoudiniParamsBuilder:
                 script_callback="__import__('byplay').ui_callbacks.reload_recordings_list('{}')".format(node.path()),
                 script_callback_language=hou.scriptLanguage.Python
             ),
+            hou.ToggleParmTemplate(
+                "byplay_set_30fps",
+                "Set scene FPS to 30",
+                is_hidden=True,
+                default_value=True,
+                join_with_next=True
+            ),
+            hou.ToggleParmTemplate(
+                "byplay_add_chopnet",
+                "Add CHOP to change timings",
+                is_hidden=True,
+                default_value=True,
+            ),
             hou.ButtonParmTemplate(
                 "byplay_load_recording",
                 "Load",
@@ -48,7 +62,29 @@ class HoudiniParamsBuilder:
                 script_callback_language=hou.scriptLanguage.Python,
                 conditionals={hou.parmCondType.DisableWhen: '{ byplay_recording_id == "[click refresh]" }'}
             ),
-            hou.SeparatorParmTemplate("byplay_separator"),
+            hou.MenuParmTemplate(
+                "byplay_use_exr_from",
+                "Use EXR env from",
+                [],
+                item_generator_script="""
+                els = [n.name()[len("Byplay_"):] for n in hou.node("/obj/byplayloader").outputs()]
+                return [item for item in els for i in range(2)]
+                """
+            )
+
+        ]
+
+    @staticmethod
+    def byplay_recording_container_parm_templates(node):
+        hou = get_hou()
+        return [
+            hou.StringParmTemplate(
+                "byplay_can_edit_paths",
+                "Byplay can edit paths",
+                1,
+                default_value="",
+                is_hidden=True
+            ),
             hou.StringParmTemplate(
                 "recording_path",
                 "Recording path",
@@ -65,12 +101,45 @@ class HoudiniParamsBuilder:
                 "exr_name",
                 "Environment .exr",
                 menu_items=['-'],
-                conditionals={hou.parmCondType.DisableWhen: '{ byplay_loaded_recording_id == "" }'}
+            ),
+            hou.IntParmTemplate(
+                "byplay_start_frame",
+                "Start at frame",
+                1,
+                default_value=(1,)
+            ),
+            hou.StringParmTemplate(
+                "byplay_recording_id",
+                "Byplay recording id",
+                1,
+                default_value=("",),
+                is_hidden=True
+            ),
+            hou.StringParmTemplate(
+                "byplay_recording_session_id",
+                "Byplay recording session id",
+                1,
+                default_value=("unk",),
+                is_hidden=True
+            ),
+            hou.FloatParmTemplate(
+                "byplay_applied_postprocessing_y_offset",
+                "Postprocessing y offset",
+                1,
+                default_value=(0,),
+                # is_hidden=True
+            ),
+            hou.FloatParmTemplate(
+                "byplay_target_postprocessing_y_offset",
+                "Target y offset",
+                1,
+                default_value=(0,),
+                # is_hidden=True
             ),
         ]
 
     @staticmethod
-    def add_byplay_tab(node):
+    def add_byplay_tab_to_loader(node):
         hou = get_hou()
         parm_group = node.parmTemplateGroup()
 
@@ -93,7 +162,23 @@ class HoudiniParamsBuilder:
         node.setParmTemplateGroup(parm_group)
 
     @staticmethod
-    def set_byplay_recording_ids(node, ids):
+    def add_byplay_tab_to_recording_container(node):
+        hou = get_hou()
+        parm_group = node.parmTemplateGroup()
+
+        parm_folder = hou.FolderParmTemplate("byplay_settings", "Byplay")
+
+        for tpl in HoudiniParamsBuilder.byplay_recording_container_parm_templates(node):
+            parm_folder.addParmTemplate(tpl)
+
+        parm_group.append(parm_folder)
+        node.setParmTemplateGroup(parm_group)
+
+    @staticmethod
+    def set_byplay_recording_ids(node):
+        ids = RecordingLocalStorage().list_recording_ids()
+        ids = list(reversed(ids))
+
         if len(ids) == 0:
             get_hou().ui.displayMessage(
                 "There are no recordings. Did you try the app and downloaded something in Byplay Desktop?"

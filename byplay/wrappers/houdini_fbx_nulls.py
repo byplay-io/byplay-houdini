@@ -15,11 +15,11 @@ class HoudiniFBXNulls(HoudiniObject):
             recording
         )
 
-    def create_nulls(self):
+    def create_nulls(self, fps):
         if not os.path.exists(self.recording.nulls_fbx_path):
             return
 
-        FBXUnpack(self.recording.nulls_fbx_path).unpack(
+        FBXUnpack(self.recording.nulls_fbx_path, fps=fps).unpack(
             parent_node=self.parent_node
         )
         planes = self.parent_node.node("Planes")
