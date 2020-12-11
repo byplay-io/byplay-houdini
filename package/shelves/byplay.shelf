@@ -16,7 +16,9 @@
     <script scriptType="python"><![CDATA[
 import byplay_preloader
 import byplay
-byplay.scene.setup_byplay_helper_nodes()
+import objecttoolutils
+created_node = objecttoolutils.genericTool(kwargs, "null")
+byplay.scene.setup_byplay_helper_nodes(created_node)
     ]]></script>
   </tool>
 </shelfDocument>

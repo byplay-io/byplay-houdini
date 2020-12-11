@@ -8,7 +8,7 @@ from byplay.wrappers.houdini_params_builder import HoudiniParamsBuilder
 class ByplaySettingsContainer(HoudiniObject):
     NODE_NAME = "byplayloader"
 
-    def __init__(self, recreate=True):
+    def __init__(self, node, recreate=True):
         template_name = "null"
         if not recreate:
             template_name = None
@@ -16,10 +16,13 @@ class ByplaySettingsContainer(HoudiniObject):
             node_name=self.NODE_NAME,
             template_name=template_name
         )
+        self.node.setPosition(node.position())
+        node.destroy()
 
     def setup(self):
         log_amplitude("Byplay loader node created")
         HoudiniParamsBuilder.add_byplay_tab_to_loader(self.node)
+        HoudiniParamsBuilder.set_byplay_recording_ids(self.node)
         self.apply_config()
 
     def apply_config(self):

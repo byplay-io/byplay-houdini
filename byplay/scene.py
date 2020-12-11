@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Dict
 
 from byplay import get_hou
 from byplay.backend.sentry import capture_exception
@@ -10,7 +11,7 @@ import byplay.wrappers.byplay_settings_container as byplay_settings_container
 from byplay.wrappers.houdini_scene import HoudiniScene
 
 
-def setup_byplay_helper_nodes():
+def setup_byplay_helper_nodes(node):
     try:
         Config.setup_logger()
     except Exception as e:
@@ -30,7 +31,7 @@ def setup_byplay_helper_nodes():
 
     try:
         logging.info("Creating byplay loader node")
-        byplay_settings_container.ByplaySettingsContainer().setup()
+        byplay_settings_container.ByplaySettingsContainer(node).setup()
     except Exception as e:
         capture_exception()
         raise e
@@ -42,8 +43,8 @@ def load_recording(recording_id: str) -> Recording:
     return recording
 
 
-def load_recording_for_ui(recording_id: str):
+def load_recording_for_ui(recording_id: str, config: Dict):
     recording = load_recording(recording_id)
-    HoudiniScene(recording).apply()
+    HoudiniScene(recording).apply(**config)
     return recording
 
