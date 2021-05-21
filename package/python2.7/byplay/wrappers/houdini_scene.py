@@ -8,6 +8,7 @@ from byplay.recording import Recording
 from byplay.wrappers.houdini_envlight import HoudiniEnvlight
 from byplay.wrappers.houdini_fbx_camera import HoudiniFBXCamera
 from byplay.wrappers.houdini_fbx_nulls import HoudiniFBXNulls
+from byplay.wrappers.houdini_fbx_scene import HoudiniFBXScene
 from byplay.wrappers.houdini_point_cloud import HoudiniPointCloud
 from byplay.wrappers.houdini_recording_container import HoudiniRecordingContainer
 
@@ -15,12 +16,9 @@ from byplay.wrappers.houdini_recording_container import HoudiniRecordingContaine
 class HoudiniScene(object):
     def __init__(self, recording):
         self.recording = recording
-        self.camera = None
-        self.nulls = []
-        self.point_cloud = None
-        self.envlight = None
         self.container = None
-        self.target_fps = 30
+        self.target_fps = recording.fps
+        self.should_load_refinement = self.recording.has_refinement()
 
     def apply(self, set_30fps=True, add_chopnet=True):
         self.target_fps = get_hou().hscriptExpression(u"$FPS")
@@ -31,30 +29,47 @@ class HoudiniScene(object):
         self.container = HoudiniRecordingContainer(recording=self.recording)
         self.container.apply_recording()
 
-        self.camera = self.load_camera(add_chopnet=add_chopnet)
-        parent_subnet = self.container.node
-        # byplay_settings_container.ByplaySettingsContainer(recreate=False).apply_recording(self.recording)
+        if self.is_legacy_fbx():
+            self.load_legacy_camera(add_chopnet=add_chopnet)
+            self.load_legacy_nulls()
+        else:
+            self.load_fbx_scene(add_chopnet=add_chopnet, parent_node=self.container.node)
 
-        self.nulls = self.load_nulls()
-        self.point_cloud = self.load_point_cloud()
-        self.envlight = self.load_envlight()
+        self.load_point_cloud()
+        self.load_envlight()
 
-        parent_subnet.layoutChildren()
+        subnet_input_1 = self.container.node.indirectInputs()[0]
+        for child in self.container.node.children():
+            name = child.name().lower()
+            if name == u"planes" or u'camera' in name or u'point_cloud' in name or name == u'nulls':
+                child.setInput(0, subnet_input_1)
+        self.container.node.layoutChildren()
 
-    def load_camera(self, add_chopnet):
-        fbxc = HoudiniFBXCamera(self.recording)
-        fbxc.create_camera(fps=self.target_fps, add_chopnet=add_chopnet)
-        return fbxc
+    def is_legacy_fbx(self):
+        return not os.path.exists(self.recording.scene_fbx_ar_path)
 
-    def load_nulls(self):
+    def load_legacy_camera(self, add_chopnet):
+        fbxc = HoudiniFBXCamera(self.recording, node_name=u"AR_camera")
+        fbxc.legacy_unpack(fps=self.target_fps)
+        fbxc.apply_camera(add_chopnet=add_chopnet)
+
+    def load_legacy_nulls(self):
         fbxc = HoudiniFBXNulls(self.recording)
         fbxc.create_nulls(fps=self.target_fps)
-        return fbxc
+
+    def load_fbx_scene(self, parent_node, add_chopnet):
+        HoudiniFBXScene(self.recording, parent_node=parent_node, refined=False).create(
+            fps=self.target_fps, add_chopnet=add_chopnet
+        )
+        if self.should_load_refinement:
+            HoudiniFBXScene(self.recording, parent_node=parent_node, refined=True).create(
+                fps=self.target_fps, add_chopnet=add_chopnet
+            )
 
     def load_point_cloud(self):
-        hpc = HoudiniPointCloud(self.recording)
-        hpc.create_point_cloud()
-        return hpc
+        HoudiniPointCloud(self.recording, refined=False).create_point_cloud()
+        if self.should_load_refinement:
+            HoudiniPointCloud(self.recording, refined=True).create_point_cloud()
 
     def apply_animation_settings(self, set_30fps):
         frame_count = self.recording.frame_count()

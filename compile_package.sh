@@ -8,7 +8,6 @@ function clear_and_copy() {
 
 dir_name="package/python2.7"
 clear_and_copy $dir_name
-find $dir_name/byplay -name '__pycache__'  -exec rm -rf {} \;
 3to2 --no-diffs -w -n $dir_name/byplay
 
 find ./$dir_name/byplay -type f -exec sed -i '' 's#from typing .*##' {} \;
@@ -16,6 +15,14 @@ find ./$dir_name/byplay -type f -exec sed -i '' 's#from typing .*##' {} \;
 clear_and_copy "package/python3"
 
 cd package
+find . -name '__pycache__'  -exec rm -rf {} \;
+
 rm package.zip
 
 zip -r package.zip ./*
+
+
+#target_dir="/Users/vadim/Library/Application Support/Byplay Desktop/plugins/byplay-houdini/current/"
+#echo "Removing $target_dir"
+#rm -rf $target_dir/*
+#cp -r ./* $target_dir/

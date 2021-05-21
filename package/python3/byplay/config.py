@@ -11,11 +11,11 @@ class Config:
 
     @staticmethod
     def is_dev() -> bool:
-        return False
+        return True
 
     @staticmethod
     def build() -> str:
-        return 1003
+        return 1008
 
     @staticmethod
     def user_id() -> str:

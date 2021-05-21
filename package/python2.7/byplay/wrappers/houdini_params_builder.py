@@ -13,7 +13,7 @@ class HoudiniParamsBuilder(object):
                 u"byplay_can_edit_paths",
                 u"Byplay can edit paths",
                 1,
-                default_value=u"",
+                default_value=u"yes",
                 is_hidden=True
             ),
             hou.StringParmTemplate(
@@ -28,7 +28,7 @@ class HoudiniParamsBuilder(object):
                 u"Recordings directory",
                 1,
                 help=u"This is set in Byplay Desktop",
-                conditionals={hou.parmCondType.DisableWhen: u'{ byplay_can_edit_paths != "yes" }'}
+                # conditionals={hou.parmCondType.DisableWhen: '{ byplay_can_edit_paths != "yes" }'}
             ),
             hou.MenuParmTemplate(
                 u"byplay_recording_id",
@@ -83,20 +83,20 @@ class HoudiniParamsBuilder(object):
                 u"byplay_can_edit_paths",
                 u"Byplay can edit paths",
                 1,
-                default_value=u"",
+                default_value=u"yes",
                 is_hidden=True
             ),
             hou.StringParmTemplate(
                 u"recording_path",
                 u"Recording path",
                 1,
-                conditionals={hou.parmCondType.DisableWhen: u'{ byplay_can_edit_paths != "yes" }'}
+                # conditionals={hou.parmCondType.DisableWhen: '{ byplay_can_edit_paths != "yes" }'}
             ),
             hou.StringParmTemplate(
                 u"video_frames_path",
                 u"Video frames path",
                 1,
-                conditionals={hou.parmCondType.DisableWhen: u'{ byplay_can_edit_paths != "yes" }'}
+                # conditionals={hou.parmCondType.DisableWhen: '{ byplay_can_edit_paths != "yes" }'}
             ),
             hou.MenuParmTemplate(
                 u"exr_name",

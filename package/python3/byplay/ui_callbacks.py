@@ -15,6 +15,7 @@ def reload_all_modules():
     for name, module in sys.modules.items():
         if name.split(".")[0] == "byplay" and module is not None:
             print("reloading {}".format(name))
+            from importlib import reload
             reload(module)
     Config.read()
 
@@ -23,9 +24,7 @@ def reload_recordings_list(node_path):
     try:
         hou = get_hou()
         node = hou.node(node_path)
-        new_ids = RecordingLocalStorage().list_recording_ids()
-        new_ids = list(reversed(new_ids))
-        HoudiniParamsBuilder.set_byplay_recording_ids(node, new_ids)
+        HoudiniParamsBuilder.set_byplay_recording_ids(node)
         log_amplitude("Recording list reloaded")
     except Exception as e:
         capture_exception()
@@ -33,18 +32,22 @@ def reload_recordings_list(node_path):
 
 
 def load_recording_for_ui(node_path):
-    try:
-        hou = get_hou()
-        node = hou.node(node_path)
-        recording_id = node.parm("byplay_recording_id").evalAsString()
-        log_amplitude("Recording loaded", recording_id=recording_id)
+    # try:
+    hou = get_hou()
+    node = hou.node(node_path)
+    recording_id = node.parm("byplay_recording_id").evalAsString()
+    log_amplitude("Recording loaded", recording_id=recording_id)
 
-        if len(recording_id) < 18:
-            hou.ui.displayMessage("Please select a recording", severity=hou.severityType.Error)
-            return
+    if len(recording_id) < 18:
+        hou.ui.displayMessage("Please select a recording", severity=hou.severityType.Error)
+        return
 
-        scene.load_recording_for_ui(recording_id)
-        node.setParms({"byplay_loaded_recording_id": recording_id})
-    except Exception as e:
-        capture_exception()
-        raise e
+    config = {
+        'set_30fps': node.parm("byplay_set_30fps").eval(),
+        'add_chopnet': node.parm("byplay_add_chopnet").eval(),
+    }
+    scene.load_recording_for_ui(recording_id, refined=True, config=config)
+    node.setParms({"byplay_loaded_recording_id": recording_id})
+    # except Exception as e:
+    #     capture_exception()
+    #     raise e
