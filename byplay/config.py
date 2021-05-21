@@ -15,7 +15,7 @@ class Config:
 
     @staticmethod
     def build() -> str:
-        return 1008
+        return 1010
 
     @staticmethod
     def user_id() -> str:
