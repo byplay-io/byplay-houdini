@@ -1,6 +1,5 @@
 from byplay import get_hou
 from byplay.config import Config
-from byplay.helpers.fbx_unpack import FBXUnpack
 from byplay.recording import Recording
 from byplay.wrappers.houdini_object import HoudiniObject
 from byplay.wrappers.houdini_params_builder import HoudiniParamsBuilder
@@ -22,8 +21,9 @@ class HoudiniRecordingContainer(HoudiniObject):
         self.connect_to_loader()
 
         HoudiniParamsBuilder.add_byplay_tab_to_recording_container(self.node)
+        pref = self.recording.frames_prefix()
         path_params = {
-            "video_frames_path": '`chs("recording_path")`/frames/`padzero(5, $F-ch("byplay_start_frame")+1)`.png',
+            "video_frames_path": '`chs("recording_path")`/frames/{}`padzero(5, $F-ch("byplay_start_frame")+1)`.png'.format(pref),
         }
         HoudiniParamsBuilder.set_exr_paths(self.node, self.recording.environment_exr_names)
 

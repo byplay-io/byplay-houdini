@@ -37,14 +37,14 @@ def setup_byplay_helper_nodes(node):
         raise e
 
 
-def load_recording(recording_id: str) -> Recording:
+def load_recording(recording_id: str, refined: bool) -> Recording:
     logging.info("loading {}".format(recording_id))
-    recording = RecordingLocalStorage().load(recording_id)
+    recording = RecordingLocalStorage().load(recording_id, refined)
     return recording
 
 
-def load_recording_for_ui(recording_id: str, config: Dict):
-    recording = load_recording(recording_id)
+def load_recording_for_ui(recording_id: str, refined: bool, config: Dict):
+    recording = load_recording(recording_id, refined)
     HoudiniScene(recording).apply(**config)
     return recording
 

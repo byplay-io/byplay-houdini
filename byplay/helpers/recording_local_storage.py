@@ -13,10 +13,10 @@ class RecordingLocalStorage:
         extracted = [rec_id for rec_id in recs if self.is_extracted(rec_id)]
         return list(sorted(extracted))
 
-    def load(self, recording_id) -> Recording:
+    def load(self, recording_id, refined=False) -> Recording:
         logging.info("Loading recording {}".format(recording_id))
         full_path = self.full_path(recording_id)
-        recording = Recording(full_path, recording_id)
+        recording = Recording(full_path, recording_id, refined=refined)
         logging.info("Loading recording {} done".format(recording_id))
         return recording
 
