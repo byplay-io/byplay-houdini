@@ -46,7 +46,7 @@ def load_recording_for_ui(node_path):
             'set_30fps': node.parm("byplay_set_30fps").eval(),
             'add_chopnet': node.parm("byplay_add_chopnet").eval(),
         }
-        scene.load_recording_for_ui(recording_id, config)
+        scene.load_recording_for_ui(recording_id, refined=True, config=config)
         node.setParms({"byplay_loaded_recording_id": recording_id})
     except Exception as e:
         capture_exception()
