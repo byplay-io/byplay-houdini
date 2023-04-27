@@ -38,7 +38,8 @@ def load_recording_for_ui(node_path):
         recording_id = node.parm("byplay_recording_id").evalAsString()
         log_amplitude("Recording loaded", recording_id=recording_id)
 
-        if len(recording_id) < 18:
+        all_ids = RecordingLocalStorage().list_recording_ids()
+        if recording_id not in all_ids:
             hou.ui.displayMessage("Please select a recording", severity=hou.severityType.Error)
             return
 

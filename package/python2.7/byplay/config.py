@@ -18,7 +18,7 @@ class Config(object):
 
     @staticmethod
     def build():
-        return 1011
+        return 1012
 
     @staticmethod
     def user_id():
