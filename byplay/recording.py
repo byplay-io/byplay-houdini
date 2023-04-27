@@ -37,10 +37,15 @@ class Recording:
         self.postprocessing_y_offset = 0
         self.recording_session_id = "unk_1"
         self.read_postprocessing_data()
-        self.fps = 30
+        self.fps = self.get_fps()
 
     def has_refinement(self):
         return os.path.exists(self.scene_fbx_refined_path) and os.path.exists(self.scene_pc_refined_path)
+
+    def get_fps(self):
+        if 'fps' in self.manifest:
+            return self.manifest['fps']
+        return 30
 
     def frame_count(self):
         return self.manifest['framesCount']
