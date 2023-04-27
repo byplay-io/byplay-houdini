@@ -14,11 +14,11 @@ class Config(object):
 
     @staticmethod
     def is_dev():
-        return True
+        return False
 
     @staticmethod
     def build():
-        return 1008
+        return 1010
 
     @staticmethod
     def user_id():

@@ -16,11 +16,13 @@ clear_and_copy "package/python3"
 
 cd package
 find . -name '__pycache__'  -exec rm -rf {} \;
+find . -name '*.DS_Store'  -exec rm -rf {} \;
 
 rm package.zip
 
 zip -r package.zip ./*
 
+mv package.zip ..
 
 #target_dir="/Users/vadim/Library/Application Support/Byplay Desktop/plugins/byplay-houdini/current/"
 #echo "Removing $target_dir"

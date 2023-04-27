@@ -33,22 +33,22 @@ def reload_recordings_list(node_path):
 
 
 def load_recording_for_ui(node_path):
-    # try:
-    hou = get_hou()
-    node = hou.node(node_path)
-    recording_id = node.parm(u"byplay_recording_id").evalAsString()
-    log_amplitude(u"Recording loaded", recording_id=recording_id)
+    try:
+        hou = get_hou()
+        node = hou.node(node_path)
+        recording_id = node.parm(u"byplay_recording_id").evalAsString()
+        log_amplitude(u"Recording loaded", recording_id=recording_id)
 
-    if len(recording_id) < 18:
-        hou.ui.displayMessage(u"Please select a recording", severity=hou.severityType.Error)
-        return
+        if len(recording_id) < 18:
+            hou.ui.displayMessage(u"Please select a recording", severity=hou.severityType.Error)
+            return
 
-    config = {
-        u'set_30fps': node.parm(u"byplay_set_30fps").eval(),
-        u'add_chopnet': node.parm(u"byplay_add_chopnet").eval(),
-    }
-    scene.load_recording_for_ui(recording_id, refined=True, config=config)
-    node.setParms({u"byplay_loaded_recording_id": recording_id})
-    # except Exception as e:
-    #     capture_exception()
-    #     raise e
+        config = {
+            u'set_30fps': node.parm(u"byplay_set_30fps").eval(),
+            u'add_chopnet': node.parm(u"byplay_add_chopnet").eval(),
+        }
+        scene.load_recording_for_ui(recording_id, refined=True, config=config)
+        node.setParms({u"byplay_loaded_recording_id": recording_id})
+    except Exception, e:
+        capture_exception()
+        raise e

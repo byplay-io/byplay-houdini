@@ -1,2 +1,4 @@
 *.pyc
 package/data/*
+distribution
+package.zip
